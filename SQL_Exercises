@@ -1,0 +1,280 @@
+/* Create a view for the 100 smallest (area) countries in the world
+Call it small_area
+Create a view for the 100 smallest (population) countries in the world
+Call it small_population
+Determine which countries are in both lists
+Determine which countries are in neither list
+Which is the small country with the biggest
+gnp?
+Give answers for “small” by area and
+population
+What is the sum of surface area of
+the 10 biggest countries in the world?
+The 10 smallest?
+Use SELECT DISTINCT and your best judgement to
+create a table with the governmentforms that are
+  undemocratic. How can we (mostly) avoid typing them
+  out (hint: the IDs are easier to type)?
+  How can we now easily create a view of the
+  governmentform values that are democratic (assume
+    that is the same as NOT undemocratic)What are the minimum and maximum GNP/
+    capita of democratic and undemocratic
+    countries?
+    Hint: use IN
+How many of the smallest
+countries are undemocratic?
+How about the biggest?
+Which languages are
+spoken in the ten largest
+(area) democratic countries?
+Are there any languages
+spoken only in democratic
+or undermocratic countries?
+What is the total city
+population in countries that
+speak English? Spanish?
+Are there any countries
+without an official
+language?
+Are there any countries
+without an official
+language?
+How many countries
+have no cities?
+Which countries have the
+100 biggest cities in the
+world?
+What languages are spoken
+in the countries with the 100
+biggest cities in the world?
+Which countries have the highest
+proportion of official language speakers?
+The lowest?
+*/
+
+/*SELECT	code,
+  name,
+  population,
+  gnp,
+  gnp / population AS gnp_per_capita
+FROM
+  (SELECT
+    code,
+    name,
+    population,
+    gnp
+  FROM
+    country
+  WHERE
+    population > 0) AS populated_countries
+WHERE
+  gnp / population > 0.03;
+
+*/
+
+/*SELECT code,
+  name,
+  population,
+  gnp
+  lifeexpectancy
+FROM  country
+
+ORDER BY lifeexpectancy ASC, gnp ASC
+*/
+
+/*SELECT code,
+  name,
+  surfacearea,
+  continent
+FROM country
+WHERE
+  lower(continent) = 'africa'
+ ORDER BY surfacearea DESC;
+
+ SELECT code,
+  name,
+  surfacearea,
+  continent,
+  lifeexpectancy
+FROM country
+WHERE
+  lower(continent) = 'africa'
+ ORDER BY lifeexpectancy DESC;
+*/
+/* WITH
+    populated_countries AS
+    (SELECT
+  *
+    FROM
+        country
+    WHERE
+        population > 0),
+
+  target_countries AS (
+    SELECT
+      *
+    FROM
+      populated_countries
+    WHERE
+      continent = 'Africa')
+SELECT
+  code,
+  name,
+  population,
+  gnp
+FROM
+  country
+WHERE
+  gnp > (SELECT max(gnp) FROM target_countries)
+*/
+
+/*CREATE VIEW small_area AS
+SELECT
+  code,
+  name,
+  surfacearea
+FROM
+  country
+
+ORDER BY surfacearea ASC
+  LIMIT 100;
+*/
+
+/*CREATE VIEW small_population1 AS
+SELECT
+  code,
+  name,
+  population
+FROM
+  country
+
+ORDER BY population ASC
+  LIMIT 100;
+*/
+
+/* CREATE VIEW small_area2 AS
+SELECT
+  *
+FROM
+  country
+ORDER BY surfacearea ASC
+  LIMIT 100;
+
+CREATE VIEW small_population2 AS
+SELECT
+  *
+FROM
+  country
+ORDER BY population ASC
+  LIMIT 100;
+
+SELECT *
+FROM
+  country
+EXCEPT
+(SELECT * FROM small_population2
+UNION
+SELECT * FROM small_area2)
+*/
+
+/*SELECT
+  name, gnp
+
+FROM
+  small_area2 ORDER BY gnp DESC LIMIT 1
+
+*/
+
+/*SELECT *
+FROM country
+ORDER BY surfacearea DESC LIMIT 10;
+*/
+
+/*CREATE VIEW large_area AS
+SELECT *
+FROM country
+ORDER BY surfacearea DESC LIMIT 10;*/
+
+/*SELECT sum(surfacearea) FROM large_area */
+/*SELECT sum(surfacearea) FROM small_area2*/
+
+/*SELECT DISTINCT code, governmentform FROM country*/
+
+/*SELECT
+*
+FROM
+countrylanguage
+WHERE
+countrycode IN (
+SELECT code FROM large_area ) */
+
+/*Select
+ countrycode, language
+FROM
+countrylanguage
+WHERE language = 'English'*/
+
+/*Select
+*
+FROM
+  country
+WHERE
+  code IN (
+    Select
+      countrycode
+    FROM
+      city) */
+/*SELECT
+  *
+FROM
+  country
+WHERE code IN (
+SELECT
+countryCode
+FROM city
+ORDER BY population DESC limit 100)
+ORDER BY population DESC;*/
+
+
+/*SELECT
+*
+FROM city
+ORDER BY population DESC limit 100;*/
+
+/* What languages are spoken in the countries with the 100 biggest cities in the world?) */
+
+/*SELECT
+*
+FROM
+country
+WHERE language IN (SELECT
+countryCode
+FROM city
+ORDER BY population DESC limit 100) */
+/*Select
+  *
+From
+  countrylanguage
+where countrycode IN (SELECT
+countryCode
+FROM city
+ORDER BY population DESC limit 100)
+ORDER BY countrycode;
+*/
+
+/* Which countries have the highest proportion of official language speakers? The lowest? */
+
+Select
+  *
+FROM
+  country
+WHERE code IN (SELECT
+countrycode
+From countrylanguage
+ORDER BY percentage DESC);
+
+
+/*SELECT
+countrycode, percentage
+From countrylanguage
+ORDER BY percentage DESC */

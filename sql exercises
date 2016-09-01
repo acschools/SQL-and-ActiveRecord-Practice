@@ -1,0 +1,157 @@
+SELECT
+  c.name AS country,
+  c.gnp AS country_gnp,
+  cl.language AS language
+
+FROM
+  country c JOIN
+  countrylanguage cl ON (c.code = cl.countrycode)
+
+WHERE
+  c.code IN (SELECT code FROM country WHERE gnp > 0 ORDER BY gnp ASC LIMIT 20)
+
+ORDER BY
+  language ASC
+
+--
+WITH
+  official_languages AS
+    (SELECT
+      *
+    FROM
+      countrylanguage
+    WHERE
+      isofficial = 'false')
+SELECT
+  ci.name AS city,
+  cl.language AS language
+
+FROM
+  city ci JOIN
+  official_languages cl ON (ci.countrycode = cl.countrycode)
+
+ORDER BY
+  language ASC
+
+
+--
+
+SELECT
+  ci.name AS city,
+  cl.language AS language
+
+FROM
+  city ci JOIN
+  countrylanguage cl ON (ci.countrycode = cl.countrycode)
+
+
+WHERE
+  ci.countrycode IN (SELECT countrycode FROM countrylanguage except WHERE isofficial = 'true')
+
+ORDER BY
+  language ASC
+
+---
+
+WITH noofficial_lang as
+  (select code from country
+  except
+  select countrycode from countrylanguage where isofficial = true)
+
+select c.code, c.name, ct.name
+from country c
+join city ct on c.code = ct.countrycode
+where c.code in ( select code from noofficial_lang )
+order by c.code
+
+---
+
+WITH
+earliest_orders AS (SELECT * FROM orders WHERE orderdate = (SELECT min(orderdate) FROM orders))
+
+SELECT distinct
+  customers.firstname AS firstname,
+  customers.lastname AS lastname,
+  earliest_orders.orderdate,
+  products.title
+
+
+FROM
+
+  earliest_orders JOIN
+  customers ON (customers.customerid = earliest_orders.customerid) JOIN
+  orderlines ON (orderlines.orderid = earliest_orders.orderid) JOIN
+  products ON (products.prod_id = orderlines.prod_id)
+
+  ---
+  Which product do we have the most of?
+  Find the order ids and customer names for all orders for that item.
+
+WITH
+  most_product AS (SELECT * FROM products WHERE prod_id IN
+  (SELECT prod_id FROM inventory ORDER BY quan_in_stock DESC))
+
+SELECT
+ most_product.title,
+ customers.firstname AS firstname,
+ customers.lastname AS lastname,
+ orders.orderid AS orderid
+
+FROM
+  most_product JOIN
+   orderlines ON (orderlines.prod_id = most_product.prod_id) JOIN
+   orders ON (orders.orderid = orderlines.orderid) JOIN
+   customers ON (customers.customerid = orders.customerid)
+
+  ---
+What were the orders from Texas placed in June?
+SELECT
+  *
+FROM
+  orders
+JOIN
+  customers USING (customerid)
+WHERE
+  state = 'TX' AND EXTRACT(MONTH FROM orderdate) = 6
+
+---
+Sci-Fi orders from Texas
+SELECT
+
+  *
+
+FROM
+
+  categories
+
+JOIN
+  products USING (category) JOIN
+  orderlines USING (prod_id) JOIN
+  orders USING (orderid) JOIN
+  customers USING (customerid)
+
+WHERE
+
+  state = 'TX' and
+  categoryname = 'Sci-Fi'
+---
+#find all actors who have not been in a sci-fi movie
+select actor FROM products except
+  (select actor FROM products WHERE category = '14' ORDER BY actor ASC)
+  ---
+#Find all customers who have not ordered a sci-fi film
+SELECT * FROM customers except
+  (SELECT
+
+    customers.*
+
+  FROM
+
+    categories JOIN
+    products USING (category) JOIN
+    orderlines USING (prod_id) JOIN
+    orders USING (orderid) JOIN
+    customers USING (customerid)
+
+  WHERE
+    categoryname = 'Sci-Fi')
